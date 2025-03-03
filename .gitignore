@@ -156,3 +156,5 @@ thumb
 sketch
 
 # End of https://mrkandreev.name/snippets/gitignore-generator/#react
+
+backend/configs/bigquery-readonly-credential.json

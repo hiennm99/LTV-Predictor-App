@@ -37,7 +37,7 @@ services:
       - ./frontend:/app
       - /app/node_modules
     ports:
-      - "3001:3001"
+      - "3003:3003"
     environment:
       - CHOKIDAR_USEPOLLING=true  # Cần thiết để hot reload hoạt động trong Docker
     command: ["npm", "run", "dev", "--", "--host", "0.0.0.0", "--port", "3001"]
