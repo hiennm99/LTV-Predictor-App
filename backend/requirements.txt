@@ -1,0 +1,25 @@
+numpy==1.24.4
+fastapi==0.103.2
+fastapi-limiter==0.1.6
+FastAPI-SQLAlchemy==0.2.1
+uvicorn==0.23.2
+json5==0.9.25
+jsonpatch==1.33
+jsonpath-ng==1.6.0
+jsonpointer==2.4
+jsonschema==4.19.0
+jsonschema-specifications==2023.7.1
+requests==2.32.3
+python-dotenv==1.0.0
+pydantic==2.8.2
+pydantic-settings==2.4.0
+pydantic_core==2.20.1
+asyncpg==0.30.0
+psycopg2-binary==2.9.7
+pandas==1.5.0
+httpx
+sqlalchemy-bigquery==1.10.0
+# clickhouse-sqlalchemy==0.3.1
+bcrypt==4.3.0
+python-jose==3.4.0
+sqlalchemy==1.4.45

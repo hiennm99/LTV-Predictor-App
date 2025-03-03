@@ -1,0 +1,43 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: ./backend
+    container_name: backend-fastapi
+    hostname: backend-fastapi
+    volumes:
+      - ./backend:/app
+    ports:
+      - "8088:8000"
+    environment:
+      - PYTHONUNBUFFERED=1
+    restart: always
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile  # Dùng Dockerfile chuẩn cho production
+    container_name: frontend-react
+    hostname: frontend-react
+    volumes:
+      - ./frontend:/app
+    ports:
+      - "80:80"
+    environment:
+      - CHOKIDAR_USEPOLLING=true
+
+  frontend-dev:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.dev  # Sử dụng Dockerfile.dev cho môi trường dev
+    container_name: frontend-react-dev
+    hostname: frontend-react-dev
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    ports:
+      - "3001:3001"
+    environment:
+      - CHOKIDAR_USEPOLLING=true  # Cần thiết để hot reload hoạt động trong Docker
+    command: ["npm", "run", "dev", "--", "--host", "0.0.0.0", "--port", "3001"]
