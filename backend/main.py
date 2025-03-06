@@ -12,9 +12,9 @@ configure_middleware(app)
 app.include_router(auth_router)
 app.include_router(ltv_router)
 
-@app.on_event("startup")
-async def startup():
-    Base.metadata.create_all(bind=engine_bigquery) # type: ignore
+# @app.on_event("startup")
+# async def startup():
+#     Base.metadata.create_all(bind=engine_bigquery) # type: ignore
 
 # if __name__ == "__main__":
 #     import uvicorn
