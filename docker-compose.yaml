@@ -23,7 +23,7 @@ services:
     volumes:
       - ./frontend:/app
     ports:
-      - "80:80"
+      - "3003:80"
     environment:
       - VITE_OKTA_CLIENT_ID=0oapbmvtyyl2qb7Dv697
       - VITE_OKTA_ISSUER=https://ltv.puzzle.sg
