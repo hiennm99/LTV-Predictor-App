@@ -6,7 +6,7 @@ const oktaAuth = new OktaAuth({
   issuer: window._env_?.VITE_OKTA_ISSUER || import.meta.env.VITE_OKTA_ISSUER,
   redirectUri: window._env_?.VITE_OKTA_REDIRECT_URI || `${window.location.origin}/login/callback`,
   scopes: ["openid", "profile", "email"],
-  pkce: true,
+  pkce: false,
   tokenManager: {
     autoRenew: true,
     expireEarlySeconds: 30,
