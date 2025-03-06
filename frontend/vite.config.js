@@ -5,7 +5,7 @@ import wasm from 'vite-plugin-wasm';
 export default defineConfig({
   plugins: [
     react(),
-    wasm()
+    wasm(),
   ],
   server: {
     host: '0.0.0.0',
