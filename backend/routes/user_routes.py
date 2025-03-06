@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from models import User
 from utils.auth import hash_pwd, check_pwd, create_access_token
 from schemas.user_schemas import UserRegister, UserLogin
-from configs.database import get_db
+# from configs.database import get_db
 import json
 import httpx
 from datetime import timedelta
