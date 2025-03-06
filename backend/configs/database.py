@@ -10,17 +10,17 @@ SERVICE_ACCOUNT_FILE = "./configs/bigquery-readonly-credential.json"
 PROJECT_ID = "puzzle-studio-data-warehouse"
 DATASET_ID = "mart"
 
-engine = create_engine(DATABASE_URL)
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-Base = declarative_base()
+# engine = create_engine(DATABASE_URL)
+# SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+# Base = declarative_base()
 
-# Dependency để lấy session
-def get_db() -> Generator[Session, None, None]:
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
+# # Dependency để lấy session
+# def get_db() -> Generator[Session, None, None]:
+#     db = SessionLocal()
+#     try:
+#         yield db
+#     finally:
+#         db.close()
 
 # Data
 engine_bigquery = create_engine(
