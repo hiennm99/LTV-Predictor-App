@@ -9,7 +9,7 @@ export default defineConfig({
   ],
   server: {
     host: '0.0.0.0',
-    port: 3001,
+    port: 3003,
   },
   define: {
     'import.meta.env.VITE_OKTA_CLIENT_ID': JSON.stringify(process.env.VITE_OKTA_CLIENT_ID || ''),
