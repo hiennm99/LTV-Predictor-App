@@ -11,6 +11,7 @@ import { FilteredTable, FilteredTableExtended } from './RenderTable.js';
 
 
 const Details: React.FC = () => {
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isShowFilter, setIsShowFilter] = useState<boolean>(false);
   const today = new Date();
   const initialFromDate = new Date(new Date(today).setDate(today.getDate() - 6))
@@ -49,7 +50,6 @@ const Details: React.FC = () => {
   const [actualRoasData, setActualRoasData] = useState<(string | number)[][]>([["Day", "ROAS"]]);
   const [dauData, setDauData] = useState<(string | number)[][]>([["Day", "DAU"]]);
 
-
   const dispatch = useDispatch<AppDispatch>(); 
   const filters = useSelector((state: RootState) => state.CheatDetail.filters);
 
@@ -71,6 +71,7 @@ const Details: React.FC = () => {
   
   //Hàm fetch dữ liệu Cheat by Type
   const fetchData = async () => {
+    setIsLoading(true);
     try {
       setD1(0);
       setD3(0);
@@ -88,7 +89,7 @@ const Details: React.FC = () => {
       setLtvData([["Day", "LTV"]]);
       setDauData([["Day", "DAU"]]);
       setRoasData([["Day", "ROAS"]]);
-      setObj({}); // Reset obj về rỗng trước khi fetch dữ liệu mới
+      setObj({});
       const response = await QueryData(selectedFromDate, selectedToDate, selectedGame, selectedCountry, selectedSource, selectedCampaign);
   
       if (response && response.data) {
@@ -105,10 +106,11 @@ const Details: React.FC = () => {
       }
     } catch (error) {
       console.error("Error fetching data: ", error);
+    } finally {
+      setIsLoading(false);
     }
   };
   
-
   //Hàm fetch dữ liệu Cheat by Type
   const fetchCoefficients = async () => {
     if (!obj || Object.keys(obj).length === 0) {
@@ -128,6 +130,7 @@ const Details: React.FC = () => {
       console.error("Error fetching data:", error);
     }
   };
+  
   const [showedFromDate, setShowedFromDate] = useState<string | undefined>("");
   const [showedToDate, setShowedToDate] = useState<string | undefined>("");
   const [showedSource, setShowedSource] = useState<string | undefined>("");
@@ -165,7 +168,6 @@ const Details: React.FC = () => {
         const newObj = Object.fromEntries(x.slice(1));
         newObj["actual_roas_7d"] = actualRoas7d;
         if (JSON.stringify(newObj) !== JSON.stringify(obj)) {
-          console.log("check obj", newObj)
           setObj(newObj);
         }
       } else {
@@ -183,7 +185,6 @@ const Details: React.FC = () => {
   
   useEffect(()=>{
     if (a3 && b3){
-      console.log("check a3 b3:", a3, b3)
       setRoasData(generateData3(a3, b3, actualDay, ["Day", "ROAS"]));
       setActualRoasData(generateData4(actualRoas7d, actualDay, ["Day", "ROAS"]))
     }
@@ -267,7 +268,6 @@ const Details: React.FC = () => {
         </button>
       </div>
 
-
       {/* Modal */}
       {isShowFilter && (
         <div className="fixed inset-0 z-20 flex items-center justify-center bg-black bg-opacity-50">
@@ -326,93 +326,104 @@ const Details: React.FC = () => {
           </svg>
         </CardDataStats>
       </div>
-      
-      {retentionData.length > 1  && pdnData.length > 1 && ltvData.length > 1 && roasData.length > 1 && dauData.length > 1 ? (
-        <div className="mt-4 space-y-4 md:mt-6 md:space-y-6 2xl:mt-7.5 2xl:space-y-7.5">
-          {/* Retention Predictor */}
-          <div className="grid grid-cols-10 gap-4">
-            <div className="col-span-7">
-              <LineChart 
-                data={retentionData}
-                title={`Retention Curve is r(n) = ${a1.toFixed(3)} * n${toSuperscript(b1)}`}
-                y_title="Retention %"
-                x_title="Day n Since Install"
-              />
+
+      {isLoading ? (
+          <div className="flex justify-center items-center h-40">
+            <div className="animate-spin rounded-full h-12 w-12 border-t-4 border-blue-500"></div>
+          </div>
+        ) : retentionData.length > 1 && pdnData.length > 1 && ltvData.length > 1 && roasData.length > 1 && dauData.length > 1 ? (
+          <div className="mt-4 space-y-4 md:mt-6 md:space-y-6 2xl:mt-7.5 2xl:space-y-7.5">
+            {/* Retention Predictor */}
+            <div className="grid grid-cols-10 gap-4">
+              <div className="col-span-7">
+                <LineChart 
+                  data={retentionData}
+                  title={`Retention Curve is r(n) = ${a1.toFixed(3)} * n${toSuperscript(b1)}`}
+                  y_title="Retention %"
+                  x_title="Day n Since Install"
+                />
+              </div>
+              <div className="col-span-3">
+                <FilteredTable data={retentionData} unit={"%"} extraColumns={[]}/>
+              </div>
             </div>
-            <div className="col-span-3">
-              <FilteredTable data={retentionData} unit={"%"} extraColumns={[]}/>
+
+            {/* Expected Player Days Predictor */}
+            <div className="grid grid-cols-10 gap-4">
+              <div className="col-span-7">
+                <LineChart 
+                  data={pdnData}
+                  title={`Expected Player Days is PD(n) = ${a2.toFixed(3)} * n${toSuperscript(b2)}`}
+                  y_title="Sum of Retention (Player Days)"
+                  x_title="Day n Since Install"
+                />
+              </div>
+              <div className="col-span-3">
+                <FilteredTable data={pdnData} unit={""} extraColumns={[]}/>
+              </div>
+            </div>
+
+            {/* LTV Predictor */}
+            <div className="grid grid-cols-10 gap-4">
+              <div className="col-span-7">
+                <LineChart 
+                  data={ltvData}
+                  title={`LTV is LTV(n) = ${arpdau.toFixed(2)} * ${a2.toFixed(3)} * n${toSuperscript(b2)}`}
+                  y_title="LTV $"
+                  x_title="Day n Since Install"
+                />
+              </div>
+              <div className="col-span-3">
+                <FilteredTable data={ltvData} unit={"$"} extraColumns={[]}/>
+              </div>
+            </div>
+
+            {/* ROAS Predictor */}
+            <div className="grid grid-cols-10 gap-4">
+              <div className="col-span-7">
+                <LineChartExtend 
+                  data1={roasData}
+                  data2={actualRoasData}
+                  title="D7ROAS Target to Break-Even by Day n"
+                  y_title="Days to Break Even (N)"
+                  x_title="D7 ROAS %"
+                />
+              </div>
+              <div className="col-span-3">
+                <FilteredTable data={roasData} unit={"%"} extraColumns={[]}/>
+              </div>
+            </div>
+
+            {/* DAU Predictor */}
+            <div className="grid grid-cols-10 gap-4">
+              <div className="col-span-7">
+                <LineChart 
+                  data={dauData}
+                  title={`DAU is DAU(n) = ${install.toFixed(0)} * ${a2.toFixed(3)} * n${toSuperscript(b2)}`}
+                  y_title="DAU"
+                  x_title="Day n Since App Lauch"
+                />
+              </div>
+              <div className="col-span-3">
+                <FilteredTableExtended 
+                  data={dauData} 
+                  unit=""
+                  extraColumns={[{ name: "Daily Revenue", multiplier: arpdau, unit: "$" }]}
+                />
+              </div>
             </div>
           </div>
-
-          {/* Expected Player Days Predictor */}
-          <div className="grid grid-cols-10 gap-4">
-            <div className="col-span-7">
-              <LineChart 
-                data={pdnData}
-                title={`Expected Player Days is PD(n) = ${a2.toFixed(3)} * n${toSuperscript(b2)}`}
-                y_title="Sum of Retention (Player Days)"
-                x_title="Day n Since Install"
-              />
-            </div>
-            <div className="col-span-3">
-              <FilteredTable data={pdnData} unit={""} extraColumns={[]}/>
-            </div>
+        ) : (
+          <div className="col-span-full flex flex-col items-center justify-center py-10">
+            <span className="text-6xl mb-4 opacity-80">📂</span>
+            <p className="text-lg font-semibold text-gray-600 dark:text-gray-300 animate-fade-in">
+              No data found
+            </p>
+            <p className="text-sm text-gray-500 dark:text-gray-400">
+              Try searching for something else.
+            </p>
           </div>
-
-          {/* LTV Predictor */}
-          <div className="grid grid-cols-10 gap-4">
-            <div className="col-span-7">
-              <LineChart 
-                data={ltvData}
-                title={`LTV is LTV(n) = ${arpdau.toFixed(2)} * ${a2.toFixed(3)} * n${toSuperscript(b2)}`}
-                y_title="LTV $"
-                x_title="Day n Since Install"
-              />
-            </div>
-            <div className="col-span-3">
-              <FilteredTable data={ltvData} unit={"$"} extraColumns={[]}/>
-            </div>
-          </div>
-
-          {/* ROAS Predictor */}
-          <div className="grid grid-cols-10 gap-4">
-            <div className="col-span-7">
-              <LineChartExtend 
-                data1={roasData}
-                data2={actualRoasData}
-                title="D7ROAS Target to Break-Even by Day n"
-                y_title="Days to Break Even (N)"
-                x_title="D7 ROAS %"
-              />
-            </div>
-            <div className="col-span-3">
-              <FilteredTable data={roasData} unit={"%"} extraColumns={[]}/>
-            </div>
-          </div>
-
-          {/* DAU Predictor */}
-          <div className="grid grid-cols-10 gap-4">
-            <div className="col-span-7">
-              <LineChart 
-                data={dauData}
-                title={`DAU is DAU(n) = ${install.toFixed(0)} * ${a2.toFixed(3)} * n${toSuperscript(b2)}`}
-                y_title="DAU"
-                x_title="Day n Since App Lauch"
-              />
-            </div>
-            <div className="col-span-3">
-            <FilteredTableExtended 
-              data={dauData} 
-              unit=""
-              extraColumns={[{ name: "Daily Revenue", multiplier: arpdau, unit: "$" }]}
-            />
-            </div>
-          </div>
-        </div>
-      ) : (
-        <div>Not Found</div>
-      )}
-
+        )}
     </React.Fragment>
   );
 };

@@ -2,10 +2,12 @@ import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import ClickOutside from '../ClickOutside';
 import { useSelector, useDispatch } from 'react-redux';
-import { RootState, AppDispatch } from '../../redux/index.js'; 
-import { logout } from '../../redux/slices/UserSlice.js';
+import { RootState, AppDispatch } from '../../redux/index'; 
+import { logout } from '../../redux/slices/UserSlice';
+import { useOktaAuth } from "@okta/okta-react";
 
 const DropdownUser = () => {
+  const { oktaAuth } = useOktaAuth();
   const dispatch = useDispatch<AppDispatch>(); 
   const navigate = useNavigate();
 
@@ -15,21 +17,27 @@ const DropdownUser = () => {
   const [department, setDepartment] = useState<string>("");
   const [userURL, setUserURL] = useState<string>();
 
-  const account = useSelector((state: RootState) => state.User.user[0]);
+  const account = useSelector((state: RootState) => state.User.user);
 
   useEffect(() => {
     console.log(account);
     if (account) {
       setFullName(account.firstName + ' ' + account.lastName);
-      setDepartment(account.department);
+      setDepartment("");
       setUserURL(account.picture)
     }
   }, [account]); // Chạy lại khi `account` thay đổi
 
-  const handleLogout = () => {
-    dispatch(logout());
-    navigate('/auth/signin');
-  };
+  const handleLogout = async () => {
+    try {
+        await oktaAuth.signOut();
+        dispatch(logout());
+        navigate('/login');
+    } catch (error) {
+        console.error("Logout failed:", error);
+    }
+};
+
 
   return (
     <React.Fragment>

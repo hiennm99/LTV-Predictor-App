@@ -3,8 +3,8 @@ import { NavLink, useLocation } from 'react-router-dom';
 import SidebarLinkGroup from './SidebarLinkGroup';
 import Logo from '../../images/logo/hero3.png';
 import { useSelector, useDispatch } from 'react-redux';
-import { RootState, AppDispatch } from '../../redux/index.js';
-import { resetFilters } from '../../redux/slices/LTVSlice.js';
+import { RootState, AppDispatch } from '../../redux/index';
+import { resetFilters } from '../../redux/slices/LTVSlice';
 
 interface SidebarProps {
   sidebarOpen: boolean;
@@ -16,7 +16,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
   const dispatch = useDispatch<AppDispatch>();
   const { pathname } = location;
 
-  const account = useSelector((state: RootState) => state.User.user[0]);
+  const account = useSelector((state: RootState) => state.User.user);
   const trigger = useRef<any>(null);
   const sidebar = useRef<any>(null);
 

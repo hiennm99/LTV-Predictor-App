@@ -9,8 +9,10 @@ def configure_middleware(app):
         "http://127.0.0.1",
         "http://localhost:80",
         "http://127.0.0.1:80",
-        "http://localhost:3001",  
-        "http://127.0.0.1:3001",
+        "http://localhost:3003",  
+        "http://127.0.0.1:3003",
+        "https://4d0a-115-78-237-180.ngrok-free.app",
+        "http://localhost:3001", 
     ]
     app.add_middleware(
         CORSMiddleware,

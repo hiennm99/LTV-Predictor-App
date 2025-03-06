@@ -1,4 +1,4 @@
-from sqlalchemy import Column, String, Date, Integer
+from sqlalchemy import Column, String, Date, Integer, Boolean, DateTime
 from models.base_model import Base
 from typing import Optional
 
@@ -17,3 +17,18 @@ class MktDashboard(Base):
     country = Column(String)
     source = Column(String)
     campaign_name = Column(String)
+
+
+class LtvAppPermission(Base):
+    CustomTableName = "ltv_app_permission" 
+    username = Column(String)
+    game_package_name = Column(String)
+    view_all = Column(Boolean)
+    created_at = Column(DateTime)
+
+
+class LtvAppGames(Base):
+    CustomTableName = "ltv_games" 
+    package_name = Column(String)
+    name = Column(String)
+    os = Column(String)

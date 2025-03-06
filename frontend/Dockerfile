@@ -1,10 +1,10 @@
-# Build ứng dụng React bằng Node.js
 FROM node:18 AS builder
-
 WORKDIR /app
+
+# Copy và cài đặt dependencies
 COPY package*.json ./
 RUN npm install
-COPY . .
+COPY . ./
 RUN npm run build
 
 # Serve file tĩnh bằng Nginx
@@ -13,7 +13,11 @@ FROM nginx:alpine
 # Copy build từ builder stage
 COPY --from=builder /app/dist /usr/share/nginx/html
 
-# Expose cổng Nginx (mặc định là 80)
+# Copy script để inject biến môi trường vào runtime
+COPY docker/env.sh /docker-entrypoint.d/99-env.sh
+RUN chmod +x /docker-entrypoint.d/99-env.sh
+
+# Expose cổng Nginx
 EXPOSE 80
 
 # Khởi động Nginx

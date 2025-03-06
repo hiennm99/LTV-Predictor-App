@@ -1,95 +1,23 @@
 from fastapi import APIRouter, HTTPException, Depends
 from sqlalchemy.orm import Session
-from configs.database import get_db, get_bigquery_db as get_secondary_db
-from models import MktDashboard
-from schemas.ltv_schemas import DataInput
-from sqlalchemy.sql import func, literal
-from sqlalchemy.types import Float 
-from sqlalchemy.sql.expression import literal
+from configs.database import get_bigquery_db as get_secondary_db
+from schemas import DataInput, PermissionInput, GameInput
 from utils.ltv import calculate_coefficients, calculate_runningsum_dnr
 import math
 from utils.auth import verify_token
+from queries import query_data, query_campaign, query_permission, query_games
+from time import sleep
 
 
-# Tạo router cho auth
 router = APIRouter(
     prefix="/api/v1/ltv",
     tags=["ltv"],
 )
 
-def query_data(from_date: str, to_date: str, package_name: str, country: str = None, source: str = None, campaign_name: str = None, db: Session = Depends(get_secondary_db)):
-    query = db.query(
-        MktDashboard.event_date,
-        (func.sum(MktDashboard.retained_users_1d) / func.sum(MktDashboard.tracker_installs)).label("rrd1"),
-        (func.sum(MktDashboard.retained_users_3d) / func.sum(MktDashboard.tracker_installs)).label("rrd3"),
-        (func.sum(MktDashboard.retained_users_7d) / func.sum(MktDashboard.tracker_installs)).label("rrd7"),
-        (func.sum(MktDashboard.total_revenue_actual) / func.sum(MktDashboard.daily_active_users)).label("arpdau"),
-        (func.sum(MktDashboard.total_revenue_7d) / func.sum(MktDashboard.adn_cost)).label("actual_roas_7d")
-    ).filter(
-        MktDashboard.event_date >= from_date,
-        MktDashboard.event_date <= to_date,
-        MktDashboard.package_name == package_name
-    )
-
-    if country:
-        query = query.filter(MktDashboard.country == country)
-
-    if source:
-        query = query.filter(MktDashboard.source == source)
-
-    if campaign_name:
-        query = query.filter(MktDashboard.campaign_name == campaign_name)
-
-    cte = query.group_by(MktDashboard.event_date).subquery("cte")
-
-    result = db.query(
-        func.avg(cte.c.rrd1).label("rrd1"),
-        func.avg(cte.c.rrd3).label("rrd3"),
-        func.avg(cte.c.rrd7).label("rrd7"),
-        func.json_extract_scalar(
-            func.to_json_string(func.approx_quantiles(cte.c.arpdau, 100)),
-            literal("$[50]")
-        ).cast(Float).label("arpdau"),  # Convert thành FLOAT
-        func.avg(cte.c.actual_roas_7d).label("actual_roas_7d")
-    ).all()
-
-
-    if not result or not result[0]:
-        raise HTTPException(status_code=404, detail="No data found")
-
-    return result[0]
-
-
-def query_campain(from_date: str, to_date: str, package_name: str, country: str = None, source: str = None, db: Session = Depends(get_secondary_db)):
-    query = db.query(
-        MktDashboard.campaign_name
-    ).filter(
-        MktDashboard.event_date >= from_date,
-        MktDashboard.event_date <= to_date,
-        MktDashboard.package_name == package_name
-    )
-
-    if country:
-        query = query.filter(MktDashboard.country == country)
-
-    if source:
-        query = query.filter(MktDashboard.source == source)
-
-    query = query.group_by(MktDashboard.campaign_name)  
-
-    result = query.all()
-
-    if not result:
-        raise HTTPException(status_code=404, detail="No data found")
-
-    return [row[0] for row in result]
-
-
 @router.post("/calculate")
 async def get_data(
     input_data: DataInput,
-    db: Session = Depends(get_secondary_db),
-    token_payload: dict = Depends(verify_token)
+    db: Session = Depends(get_secondary_db)
 ):
     res = query_data(
         from_date=input_data.from_date,
@@ -139,7 +67,7 @@ async def get_data(
         return {"error": str(e)}
 
 @router.post("/calculate/coefficients")
-def get_coefficients(obj: dict, token_payload: dict = Depends(verify_token)):
+def get_coefficients(obj: dict):
     if obj and '7' in obj.keys():
         n_values = [7, 14, 30]
         r_values = [
@@ -157,8 +85,10 @@ def get_coefficients(obj: dict, token_payload: dict = Depends(verify_token)):
         }
 
 @router.post("/query/campaign")
-async def get_campaign(input_data: DataInput, db: Session = Depends(get_secondary_db), token_payload: dict = Depends(verify_token)):
-    res = query_campain(
+async def get_campaign(input_data: DataInput, db: Session = Depends(get_secondary_db)
+                    #    , token_payload: dict = Depends(verify_token)
+                ):
+    res = query_campaign(
         from_date=input_data.from_date,
         to_date=input_data.to_date,
         package_name=input_data.package_name,
@@ -167,6 +97,55 @@ async def get_campaign(input_data: DataInput, db: Session = Depends(get_secondar
         db=db
     )
 
+    return {
+        "data": res
+    }
+
+@router.post("/query/permission")
+async def get_app_permission(input_data: PermissionInput, db: Session = Depends(get_secondary_db)):
+    res = query_permission(username=input_data.username, db=db)
+
+    # Sắp xếp theo created_at (mới nhất lên đầu)
+    sorted_res = sorted(res, key=lambda x: x.created_at, reverse=True)
+
+    games_list = []
+    latest_view_all = None
+
+    for row in sorted_res:
+        view_all_flag = row.view_all  # Truy cập trực tiếp thuộc tính thay vì dict(row)
+        game_package = row.game_package_name
+
+        # Nếu gặp record view_all = False => Bắt đầu lưu danh sách game
+        if view_all_flag is False:
+            games_list.append(game_package)
+
+        # Nếu gặp record view_all = True
+        if view_all_flag is True:
+            if games_list:
+                # Nếu trước đó đã có game cụ thể (view_all=False), thì bỏ qua view_all=True
+                continue  
+            else:
+                # Nếu chưa có game nào, thì giữ nguyên view_all=True
+                latest_view_all = True
+                break  
+
+    return {
+        "data": {
+            "view_all": latest_view_all if not games_list else False,  
+            "games_list": games_list if not latest_view_all else []
+        }
+    }
+
+@router.post("/query/games")
+async def get_games_list(input_data: GameInput, db: Session = Depends(get_secondary_db)
+                    #    , token_payload: dict = Depends(verify_token)
+                ):
+    
+    res = query_games(
+        view_all=input_data.view_all,
+        games_list=input_data.games_list,
+        db=db
+    )
     return {
         "data": res
     }

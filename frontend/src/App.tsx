@@ -1,21 +1,25 @@
 import React from 'react';
 import DefaultLayout from './layout/DefaultLayout';
 import AppRoutes from './routes/appRoutes';
-import { GoogleOAuthProvider } from "@react-oauth/google";
 
-const GOOGLE_CLIENT_ID = "915902946640-pqt8tumdf4os14eg9f493ue201rp7t8u.apps.googleusercontent.com";
+import oktaAuth from './secrets/oktaConfigs';
+import { Security } from "@okta/okta-react";
+import { useNavigate } from "react-router-dom";
 
+const App = () => {
+  const navigate = useNavigate();
 
-function App() {
+  const restoreOriginalUri = async (_oktaAuth: any, originalUri: string) => {
+    navigate(originalUri || "/");
+  };
+
   return (
-    <React.Fragment>
-      <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
+    <Security oktaAuth={oktaAuth} restoreOriginalUri={restoreOriginalUri}>
       <DefaultLayout>
         <AppRoutes />
       </DefaultLayout>
-      </GoogleOAuthProvider>
-    </React.Fragment>
-  )
-}
+    </Security>
+  );
+};
 
 export default App;

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { RootState } from '../redux';
@@ -8,21 +8,20 @@ interface PrivateRouteProps {
 }
 
 const PrivateRoutes: React.FC<PrivateRouteProps> = ({ children }) => {
-    const account = useSelector((state: RootState) => state.User.user[0]);
+    const navigate = useNavigate();
+    const account = useSelector((state: RootState) => state.User.user);
+
+    useEffect(() => {
+        if (!account?.isAuthenticated || !account?.token) {
+            navigate('/login', { replace: true });
+        }
+    }, [account, navigate]);
+
     if (!account?.isAuthenticated || !account?.token) {
-        
-        return (
-            <div>
-                <p>You are not authenticated. Please log in to access this page.</p>
-            </div>
-        );
+        return null; // Tránh render nội dung nếu chưa authen
     }
 
-    return (
-        <React.Fragment>
-            {children}
-        </React.Fragment>
-    )
+    return <>{children}</>;
 };
 
 export default PrivateRoutes;
