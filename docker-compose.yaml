@@ -23,26 +23,8 @@ services:
     volumes:
       - ./frontend:/app
     ports:
-      - "3003:80"
+      - "3003:80"  # Không cần publish 80/443 ra ngoài
     environment:
       - VITE_OKTA_CLIENT_ID=0oapbmvtyyl2qb7Dv697
       - VITE_OKTA_ISSUER=https://login.puzzle.sg
       - VITE_OKTA_REDIRECT_URI=https://ltv.puzzle.sg/login/callback
-
-  frontend-dev:
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile.dev  # Sử dụng Dockerfile.dev cho môi trường dev
-    container_name: frontend-react-dev
-    hostname: frontend-react-dev
-    volumes:
-      - ./frontend:/app
-      - /app/node_modules
-    ports:
-      - "3003:3001"
-    environment:
-      - CHOKIDAR_USEPOLLING=true
-      - VITE_OKTA_CLIENT_ID=0oapbmvtyyl2qb7Dv697
-      - VITE_OKTA_ISSUER=https://login.puzzle.sg
-      - VITE_OKTA_REDIRECT_URI=http://localhost:3001/login/callback
-    command: ["npm", "run", "dev", "--", "--host", "0.0.0.0", "--port", "3001"]
