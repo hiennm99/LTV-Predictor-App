@@ -23,11 +23,11 @@ services:
     volumes:
       - ./frontend:/app
     ports:
-      - "3003:80"
+      - "80:80"
     environment:
       - VITE_OKTA_CLIENT_ID=0oapbmvtyyl2qb7Dv697
-      - VITE_OKTA_ISSUER=https://login.puzzle.sg
-      - VITE_OKTA_REDIRECT_URI=http://ec2-23-23-79-187.compute-1.amazonaws.com:3003/login/callback
+      - VITE_OKTA_ISSUER=https://ltv.puzzle.sg
+      - VITE_OKTA_REDIRECT_URI=https://ltv.puzzle.sg/login/callback
 
   frontend-dev:
     build:
