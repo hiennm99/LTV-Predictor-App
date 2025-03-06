@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from configs.middleware import configure_middleware
 from routes import auth_router, ltv_router
 from models import Base
-from configs.database import engine
+from configs.database import engine_bigquery
 
 
 app = FastAPI()
@@ -14,7 +14,7 @@ app.include_router(ltv_router)
 
 @app.on_event("startup")
 async def startup():
-    Base.metadata.create_all(bind=engine) # type: ignore
+    Base.metadata.create_all(bind=engine_bigquery) # type: ignore
 
 # if __name__ == "__main__":
 #     import uvicorn
