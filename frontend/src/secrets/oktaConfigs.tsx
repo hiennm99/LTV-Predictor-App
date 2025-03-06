@@ -1,7 +1,7 @@
 
 import { OktaAuth } from "@okta/okta-auth-js";
 
-export const oktaAuth = new OktaAuth({
+const oktaAuth = new OktaAuth({
   clientId: window._env_?.VITE_OKTA_CLIENT_ID || import.meta.env.VITE_OKTA_CLIENT_ID,
   issuer: window._env_?.VITE_OKTA_ISSUER || import.meta.env.VITE_OKTA_ISSUER,
   redirectUri: window._env_?.VITE_OKTA_REDIRECT_URI || `${window.location.origin}/login/callback`,
@@ -12,3 +12,5 @@ export const oktaAuth = new OktaAuth({
     expireEarlySeconds: 30,
   },
 });
+
+export default oktaAuth;
