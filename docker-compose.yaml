@@ -26,7 +26,7 @@ services:
       - "3003:80"
     environment:
       - VITE_OKTA_CLIENT_ID=0oapbmvtyyl2qb7Dv697
-      - VITE_OKTA_ISSUER=https://ltv.puzzle.sg
+      - VITE_OKTA_ISSUER=https://login.puzzle.sg
       - VITE_OKTA_REDIRECT_URI=https://ltv.puzzle.sg/login/callback
 
   frontend-dev:
