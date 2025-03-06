@@ -5,7 +5,7 @@ const oktaAuth = new OktaAuth({
   issuer: "https://login.puzzle.sg",
   redirectUri: window.location.origin + "/login/callback",
   scopes: ["openid", "profile", "email"],
-  pkce: true,
+  pkce: false,
   tokenManager: {
     autoRenew: true,
     expireEarlySeconds: 30,
