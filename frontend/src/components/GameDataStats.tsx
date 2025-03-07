@@ -4,7 +4,7 @@ interface GameDataStatsProps {
   name: string;
   os: string;
   image?: string;
-  onClick?: () => void; // Thêm prop sự kiện click
+  onClick?: () => void;
 }
 
 const GameDataStats: React.FC<GameDataStatsProps> = ({ name, os, image, onClick }) => {
@@ -14,9 +14,17 @@ const GameDataStats: React.FC<GameDataStatsProps> = ({ name, os, image, onClick 
 
   return (
     <div
-      className="rounded-2xl border border-stroke bg-white py-6 px-7.5 shadow-default dark:border-strokedark dark:bg-boxdark cursor-pointer hover:shadow-blue-300 hover:shadow-lg transition duration-300"
+      className="relative rounded-2xl border border-stroke bg-white py-6 px-7.5 shadow-default dark:border-strokedark dark:bg-boxdark cursor-pointer hover:shadow-blue-300 hover:shadow-lg transition duration-300"
       onClick={onClick}
     >
+      {osIcon && (
+        <img
+          src={osIcon}
+          alt={`${os} icon`}
+          className="absolute top-2 left-2 w-6 h-6"
+        />
+      )}
+
       <div className="flex flex-col items-center">
         {image && (
           <img
@@ -28,13 +36,6 @@ const GameDataStats: React.FC<GameDataStatsProps> = ({ name, os, image, onClick 
         <h4 className="text-lg font-bold text-black dark:text-white text-center">
           {name}
         </h4>
-        {osIcon && (
-          <img
-            src={osIcon}
-            alt={`${os} icon`}
-            className="w-6 h-6 mt-1"
-          />
-        )}
       </div>
     </div>
   );
