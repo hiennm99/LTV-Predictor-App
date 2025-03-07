@@ -11,6 +11,7 @@ const GameDataStats: React.FC<GameDataStatsProps> = ({ name, os, image, onClick 
   const androidIcon = "/src/images/icon/android_icon.svg";
   const iosIcon = "/src/images/icon/ios_icon.svg";
   const osIcon = os === "ANDROID" ? androidIcon : os === "IOS" ? iosIcon : null;
+  const getOsImage = (os: string) => `/images/icon/${os}.svg`;
 
   return (
     <div
@@ -30,7 +31,7 @@ const GameDataStats: React.FC<GameDataStatsProps> = ({ name, os, image, onClick 
         </h4>
         {osIcon && (
           <img
-            src={osIcon}
+            src={getOsImage(os)}
             alt={`${os} icon`}
             className="w-6 h-6 mt-1"
           />

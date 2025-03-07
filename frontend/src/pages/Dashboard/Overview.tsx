@@ -23,6 +23,7 @@ const Overview: React.FC = () => {
   const getGameImage = (packageName: string) => `/images/game/${packageName}.webp`;
   const getOsImage = (os: string) => `/images/icon/${os}.svg`;
 
+
   const handleGameClick = (selectedGame: string) => {
     dispatch(addFilter({
       fromDate: "",
@@ -128,7 +129,7 @@ const Overview: React.FC = () => {
               <GameDataStats
                 key={game.package_name}
                 name={game.name}
-                os={getOsImage((game.os.toLowerCase()))}
+                os={game.os}
                 image={getGameImage(game.package_name)}
                 onClick={() => handleGameClick(game.package_name)}
               />
