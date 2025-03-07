@@ -21,8 +21,7 @@ const Overview: React.FC = () => {
 
   // const getGameImage = (packageName: string) => `/src/images/game/${packageName}.webp`;
   const getGameImage = (packageName: string) => `/images/game/${packageName}.webp`;
-  const getOsImage = (os: string) => `/images/icon/${os}.webp`;
-
+  const getOsImage = (os: string) => `/images/icon/${os}.svg`;
 
   const handleGameClick = (selectedGame: string) => {
     dispatch(addFilter({
