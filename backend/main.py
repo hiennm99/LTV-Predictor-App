@@ -1,3 +1,4 @@
+import uvicorn
 from fastapi import FastAPI
 from configs.middleware import configure_middleware
 from routes import auth_router, ltv_router
@@ -16,6 +17,5 @@ app.include_router(ltv_router)
 # async def startup():
 #     Base.metadata.create_all(bind=engine_bigquery) # type: ignore
 
-# if __name__ == "__main__":
-#     import uvicorn
-#     uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
+if __name__ == "__main__":
+    uvicorn.run("main:app", host="0.0.0.0", port=8088, reload=True)
