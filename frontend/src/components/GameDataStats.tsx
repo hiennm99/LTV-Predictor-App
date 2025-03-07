@@ -8,10 +8,9 @@ interface GameDataStatsProps {
 }
 
 const GameDataStats: React.FC<GameDataStatsProps> = ({ name, os, image, onClick }) => {
-  const androidIcon = "/src/images/icon/android_icon.svg";
-  const iosIcon = "/src/images/icon/ios_icon.svg";
+  const androidIcon = "/images/icon/android.svg";
+  const iosIcon = "/images/icon/ios.svg";
   const osIcon = os === "ANDROID" ? androidIcon : os === "IOS" ? iosIcon : null;
-  const getOsImage = (os: string) => `/images/icon/${os}.svg`;
 
   return (
     <div
@@ -31,7 +30,7 @@ const GameDataStats: React.FC<GameDataStatsProps> = ({ name, os, image, onClick 
         </h4>
         {osIcon && (
           <img
-            src={getOsImage(os)}
+            src={osIcon}
             alt={`${os} icon`}
             className="w-6 h-6 mt-1"
           />
