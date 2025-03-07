@@ -10,7 +10,7 @@ from time import sleep
 
 
 router = APIRouter(
-    prefix="/api/v1/ltv",
+    prefix="/v1/ltv",
     tags=["ltv"],
 )
 
