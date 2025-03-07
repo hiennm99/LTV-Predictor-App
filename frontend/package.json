@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "build": "vite build && sudo chown -R www-data:www-data dist && sudo chmod -R 755 dist",
     "preview": "vite preview"
   },
   "author": {
