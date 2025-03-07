@@ -19,7 +19,8 @@ const Overview: React.FC = () => {
   const [filteredGames, setFilteredGames] = useState<Game[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
-  const getImagePath = (packageName: string) => `/src/images/game/${packageName}.webp`;
+  // const getImagePath = (packageName: string) => `/src/images/game/${packageName}.webp`;
+  const getImagePath = (packageName: string) => `/images/game/${packageName}.webp`;
 
   const handleGameClick = (selectedGame: string) => {
     dispatch(addFilter({
