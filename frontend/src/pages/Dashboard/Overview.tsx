@@ -76,10 +76,10 @@ const Overview: React.FC = () => {
   // ✅ Fetch permissions
   const fetchPermission = async (email: string) => {
     try {
-      // if (!authState || !authState.isAuthenticated) {
-      //   console.error("User is not authenticated");
-      //   return;
-      // }
+      if (!authState || !authState.isAuthenticated) {
+        console.error("User is not authenticated");
+        return;
+      }
   
       const accessToken = authState.accessToken?.accessToken;
       if (!accessToken) {
