@@ -6,7 +6,7 @@ from google.oauth2 import service_account
 from typing import Generator
 
 DATABASE_URL = "postgresql://postgres:postgres@192.168.1.54/mcpe_platform"
-SERVICE_ACCOUNT_FILE = "./configs/bigquery-readonly-credential.json"
+SERVICE_ACCOUNT_FILE = "./configs/cred.json"
 PROJECT_ID = "puzzle-studio-data-warehouse"
 DATASET_ID = "mart"
 
