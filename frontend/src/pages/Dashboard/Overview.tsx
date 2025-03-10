@@ -86,9 +86,8 @@ const Overview: React.FC = () => {
         console.error("Access token not found");
         return;
       }
-      console.log("check access token: ", accessToken);
     
-      const response = await QueryPermission(email, "");
+      const response = await QueryPermission(email, accessToken);
       if (response?.data?.data) {
         const { view_all, games_list } = response.data.data;
         if (typeof view_all === "boolean" && Array.isArray(games_list)) {
