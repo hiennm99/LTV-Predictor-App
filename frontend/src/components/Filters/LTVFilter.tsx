@@ -2,15 +2,12 @@ import React, { useEffect, useState } from "react";
 import Select from 'react-select';
 import { DateRangePicker } from 'react-date-range';
 import { useDispatch, useSelector } from 'react-redux';
-
 import { RootState, AppDispatch } from '../../redux';
-import { addFilter, resetFilters } from '../../redux/slices/LTVSlice';
-
-import { GameList } from "../../assets/filter_assets/GameList";
+import { addFilter } from '../../redux/slices/LTVSlice';
 import { PartnerList } from "../../assets/filter_assets/PartnerList";
 import { CountryList } from "../../assets/filter_assets/CountryList";
-
 import { QueryCampaign } from "../../services/DataServices";
+import { useOktaAuth } from "@okta/okta-react";
 
 interface LTVFilterProps {
   isOpen: boolean;
@@ -34,6 +31,7 @@ const LTVFilter: React.FC<LTVFilterProps> = ({ isOpen, handleClose }) => {
     const [isMultiFilterCountries, setIsMultiFilterCountries] = useState<boolean>(false);
 
     const dispatch = useDispatch<AppDispatch>();
+    const { authState } = useOktaAuth();
     
     const [selectionRange, setSelectionRange] = useState<{
         startDate: Date | null;
@@ -56,12 +54,24 @@ const LTVFilter: React.FC<LTVFilterProps> = ({ isOpen, handleClose }) => {
 
     const fetchCampaigns = async (filters: any) => {
         try {
+            if (!authState || !authState.isAuthenticated) {
+                console.error("User is not authenticated");
+                return;
+            }
+          
+            const accessToken = authState.accessToken?.accessToken;
+            if (!accessToken) {
+                console.error("Access token not found");
+                return;
+            }
+            
             const response = await QueryCampaign(
                 filters.fromDate, 
                 filters.toDate, 
                 filters.gamePackageName, 
                 filters.country, 
-                filters.partner
+                filters.partner,
+                accessToken
             );
             if (response && response.data && Array.isArray(response.data.data)) {
                 setCampaignList(response.data.data.map((item: string) => ({ value: item })));

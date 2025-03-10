@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException, Depends, Request, Header
+from fastapi import APIRouter, HTTPException, Depends, Request, Header, status
 from sqlalchemy.orm import Session
 from configs.database import get_bigquery_db as get_secondary_db
 from schemas import DataInput, PermissionInput, GameInput
@@ -16,9 +16,13 @@ router = APIRouter(
 
 @router.post("/calculate")
 async def get_data(
-    input_data: DataInput,
-    db: Session = Depends(get_secondary_db)
-):
+        input_data: DataInput,
+        db: Session = Depends(get_secondary_db),
+        user: dict = Depends(get_current_user)
+    ):
+    if not user:
+        raise HTTPException(status_code=401, detail="User not authenticated")
+    
     res = query_data(
         from_date=input_data.from_date,
         to_date=input_data.to_date,
@@ -50,7 +54,6 @@ async def get_data(
         a2, b2 = calculate_coefficients(n_values=n2_values, r_values=r2_values)
 
         return {
-            "status_code": 200,
             "data": {
                 "d1": d1,
                 "d3": d3,
@@ -85,9 +88,14 @@ def get_coefficients(obj: dict):
         }
 
 @router.post("/query/campaign")
-async def get_campaign(input_data: DataInput, db: Session = Depends(get_secondary_db)
-                    #    , token_payload: dict = Depends(verify_token)
-                ):
+async def get_campaign(
+        input_data: DataInput, 
+        db: Session = Depends(get_secondary_db),
+        user: dict = Depends(get_current_user)
+    ):
+    if not user:
+        raise HTTPException(status_code=401, detail="User not authenticated")
+
     res = query_campaign(
         from_date=input_data.from_date,
         to_date=input_data.to_date,
@@ -105,13 +113,12 @@ async def get_campaign(input_data: DataInput, db: Session = Depends(get_secondar
 async def get_app_permission(
         input_data: PermissionInput, 
         db: Session = Depends(get_secondary_db), 
-        request: Request = None,
         user: dict = Depends(get_current_user)
     ):
-    client_ip = request.headers.get('X-Real-IP') or request.headers.get('X-Forwarded-For')
-    print(client_ip)
+    if not user:
+        raise HTTPException(status_code=401, detail="User not authenticated")
+    
     res = query_permission(username=input_data.username, db=db)
-
     sorted_res = sorted(res, key=lambda x: x.created_at, reverse=True)
 
     games_list = []
@@ -140,9 +147,13 @@ async def get_app_permission(
     }
 
 @router.post("/query/games")
-async def get_games_list(input_data: GameInput, db: Session = Depends(get_secondary_db)
-                    #    , token_payload: dict = Depends(verify_token)
-                ):
+async def get_games_list(
+        input_data: GameInput, 
+        db: Session = Depends(get_secondary_db),
+        user: dict = Depends(get_current_user)
+    ):
+    if not user:
+        raise HTTPException(status_code=401, detail="User not authenticated")
     
     res = query_games(
         view_all=input_data.view_all,

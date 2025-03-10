@@ -19,7 +19,7 @@ export interface QueryResult {
   arpdau: number;
 }
 
-const QueryData = async (from_date: string, to_date: string, package_name: string, country: string = "", partner: string = "", campaign: string = ""): Promise<any> => {
+const QueryData = async (from_date: string, to_date: string, package_name: string, country: string = "", partner: string = "", campaign: string = "", accessToken: string): Promise<any> => {
   const data = JSON.stringify({
     from_date: from_date,
     to_date: to_date,
@@ -33,6 +33,11 @@ const QueryData = async (from_date: string, to_date: string, package_name: strin
     method: 'post',
     maxBodyLength: Infinity,
     url: '/ltv/calculate',  
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${accessToken}`,
+      "accept": "application/json",
+    },
     data: data,
   };
 
@@ -52,7 +57,7 @@ const CalCoefficients = async (object: {}): Promise<any> => {
   return axios(config);
 };
 
-const QueryCampaign = async (from_date: string, to_date: string, package_name: string, country: string = "", partner: string = ""): Promise<any> => {
+const QueryCampaign = async (from_date: string, to_date: string, package_name: string, country: string = "", partner: string = "", accessToken: string): Promise<any> => {
   const data = JSON.stringify({
     from_date: from_date,
     to_date: to_date,
@@ -65,6 +70,11 @@ const QueryCampaign = async (from_date: string, to_date: string, package_name: s
     method: 'post',
     maxBodyLength: Infinity,
     url: '/ltv/query/campaign',  
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${accessToken}`,
+      "accept": "application/json",
+    },
     data: data,
   };
 
@@ -92,7 +102,7 @@ const QueryPermission = async (username: string, accessToken: string): Promise<a
 };
 
 
-const QueryGames = async (view_all: boolean, games_list: string[]): Promise<any> => {
+const QueryGames = async (view_all: boolean, games_list: string[], accessToken: string): Promise<any> => {
   const data = JSON.stringify({
     view_all: view_all,
     games_list: games_list
@@ -102,6 +112,11 @@ const QueryGames = async (view_all: boolean, games_list: string[]): Promise<any>
     method: 'post',
     maxBodyLength: Infinity,
     url: '/ltv/query/games',  
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${accessToken}`,
+      "accept": "application/json",
+    },
     data: data,
   };
 

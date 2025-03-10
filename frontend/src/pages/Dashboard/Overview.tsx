@@ -61,7 +61,18 @@ const Overview: React.FC = () => {
   const fetchGameData = async (view_all: boolean, games_list: string[]) => {
     setIsLoading(true);
     try {
-      const response = await QueryGames(view_all, games_list);
+      if (!authState || !authState.isAuthenticated) {
+        console.error("User is not authenticated");
+        return;
+      }
+  
+      const accessToken = authState.accessToken?.accessToken;
+      if (!accessToken) {
+        console.error("Access token not found");
+        return;
+      }
+    
+      const response = await QueryGames(view_all, games_list, accessToken);
       if (response?.data?.data) {
         setGameData(response.data.data);
         setFilteredGames(response.data.data); // ✅ Cập nhật luôn filteredGames

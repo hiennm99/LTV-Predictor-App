@@ -53,6 +53,7 @@ const Details: React.FC = () => {
 
   const dispatch = useDispatch<AppDispatch>(); 
   const filters = useSelector((state: RootState) => state.CheatDetail.filters);
+  const { authState } = useOktaAuth();
 
   // Đồng bộ từ `filters` vào state `selectedFromDate` và `selectedToDate`
   useEffect(() => {
@@ -91,7 +92,19 @@ const Details: React.FC = () => {
       setDauData([["Day", "DAU"]]);
       setRoasData([["Day", "ROAS"]]);
       setObj({});
-      const response = await QueryData(selectedFromDate, selectedToDate, selectedGame, selectedCountry, selectedSource, selectedCampaign);
+
+      if (!authState || !authState.isAuthenticated) {
+        console.error("User is not authenticated");
+        return;
+      }
+  
+      const accessToken = authState.accessToken?.accessToken;
+      if (!accessToken) {
+        console.error("Access token not found");
+        return;
+      }
+
+      const response = await QueryData(selectedFromDate, selectedToDate, selectedGame, selectedCountry, selectedSource, selectedCampaign, accessToken);
   
       if (response && response.data) {
         const res = response.data.data
