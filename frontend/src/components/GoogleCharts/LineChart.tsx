@@ -54,9 +54,6 @@ const LineChartExtend: React.FC<{
           },
       };
 
-      console.log("data1: ", data1);
-      console.log("data2: ", data2);
-  
       return (
           <div>
               <Chart 

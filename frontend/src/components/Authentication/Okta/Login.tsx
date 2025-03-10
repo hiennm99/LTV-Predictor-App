@@ -19,11 +19,9 @@ const OktaLogin = () => {
       if (authState.isAuthenticated) {
         setIsProcessing(true);
         const user = await oktaAuth.getUser();
-        const access_token = authState.accessToken?.accessToken;
-
         const reduxForm = {
           email: user?.email || "",
-          token: access_token || "",
+          token: "",
           isAuthenticated: true,
           firstName: user?.given_name || "",
           lastName: user?.family_name || "",
