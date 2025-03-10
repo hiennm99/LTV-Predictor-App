@@ -12,7 +12,6 @@ const AppRoutes: React.FC = () => {
             <Route path="/" element={<Navigate to="/login" replace />} />
             <Route path="/login" element={<OktaLogin />} />
             <Route path="/login/callback" element={<LoginCallback />} />
-
             <Route
                 path="/dashboard"
                 element={

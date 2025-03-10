@@ -8,6 +8,7 @@ import { QueryData, CalCoefficients } from '../../services/DataServices.js';
 import { LineChart, LineChartExtend } from '../../components/GoogleCharts/LineChart';
 import { generateData1, generateData2, generateData3, generateData4 } from '../../components/Generators/ChartDataGenerator.js'
 import { FilteredTable, FilteredTableExtended } from './RenderTable.js';
+import { useOktaAuth } from "@okta/okta-react";
 
 
 const Details: React.FC = () => {

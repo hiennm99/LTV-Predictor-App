@@ -7,12 +7,14 @@ import { RootState, AppDispatch } from '../../redux/index';
 import { debounce } from 'lodash';
 import { Game } from '../../types/game';
 import { QueryPermission, QueryGames } from "../../services/DataServices.js";
+import { useOktaAuth } from "@okta/okta-react";
 
 
 const Overview: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
   const account = useSelector((state: RootState) => state.User.user);
+  const { authState } = useOktaAuth();
 
   const [keywords, setKeywords] = useState<string>("");
   const [gameData, setGameData] = useState<Game[]>([]);
@@ -21,8 +23,6 @@ const Overview: React.FC = () => {
 
   // const getGameImage = (packageName: string) => `/src/images/game/${packageName}.webp`;
   const getGameImage = (packageName: string) => `/images/game/${packageName}.webp`;
-  const getOsImage = (os: string) => `/images/icon/${os}.svg`;
-
 
   const handleGameClick = (selectedGame: string) => {
     dispatch(addFilter({
@@ -76,8 +76,18 @@ const Overview: React.FC = () => {
   // ✅ Fetch permissions
   const fetchPermission = async (email: string) => {
     try {
-      const response = await QueryPermission(email);
-      
+      if (!authState || !authState.isAuthenticated) {
+        console.error("User is not authenticated");
+        return;
+      }
+  
+      const accessToken = authState.accessToken?.accessToken;
+      if (!accessToken) {
+        console.error("Access token not found");
+        return;
+      }
+    
+      const response = await QueryPermission(email, accessToken);
       if (response?.data?.data) {
         const { view_all, games_list } = response.data.data;
         if (typeof view_all === "boolean" && Array.isArray(games_list)) {
@@ -91,6 +101,7 @@ const Overview: React.FC = () => {
       setIsLoading(false);
     }
   };
+  
 
   useEffect(()=>{
     if (account && account.isAuthenticated && account.email != ''){

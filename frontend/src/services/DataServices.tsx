@@ -71,20 +71,26 @@ const QueryCampaign = async (from_date: string, to_date: string, package_name: s
   return axios(config);
 };
 
-const QueryPermission = async (username: string): Promise<any> => {
+const QueryPermission = async (username: string, accessToken: string): Promise<any> => {
   const data = JSON.stringify({
     username: username,
   });
 
   const config = {
-    method: 'post',
+    method: "post",
     maxBodyLength: Infinity,
-    url: '/ltv/query/permission',  
+    url: "/ltv/query/permission",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${accessToken}`,
+      "accept": "application/json",
+    },
     data: data,
   };
 
   return axios(config);
 };
+
 
 const QueryGames = async (view_all: boolean, games_list: string[]): Promise<any> => {
   const data = JSON.stringify({

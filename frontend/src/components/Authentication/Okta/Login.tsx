@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useOktaAuth } from "@okta/okta-react";
 import { useNavigate } from "react-router-dom";

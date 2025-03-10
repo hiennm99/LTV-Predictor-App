@@ -1,12 +1,12 @@
-from fastapi import APIRouter, HTTPException, Depends
+from fastapi import APIRouter, HTTPException, Depends, Request, Header
 from sqlalchemy.orm import Session
 from configs.database import get_bigquery_db as get_secondary_db
 from schemas import DataInput, PermissionInput, GameInput
 from utils.ltv import calculate_coefficients, calculate_runningsum_dnr
 import math
-from utils.auth import verify_token
 from queries import query_data, query_campaign, query_permission, query_games
 from time import sleep
+from utils.auth import get_current_user
 
 
 router = APIRouter(
@@ -102,34 +102,37 @@ async def get_campaign(input_data: DataInput, db: Session = Depends(get_secondar
     }
 
 @router.post("/query/permission")
-async def get_app_permission(input_data: PermissionInput, db: Session = Depends(get_secondary_db)):
+async def get_app_permission(
+        input_data: PermissionInput, 
+        db: Session = Depends(get_secondary_db), 
+        request: Request = None,
+        user: dict = Depends(get_current_user)
+    ):
+    client_ip = request.headers.get('X-Real-IP') or request.headers.get('X-Forwarded-For')
+    print(client_ip)
     res = query_permission(username=input_data.username, db=db)
 
-    # Sắp xếp theo created_at (mới nhất lên đầu)
     sorted_res = sorted(res, key=lambda x: x.created_at, reverse=True)
 
     games_list = []
     latest_view_all = None
 
     for row in sorted_res:
-        view_all_flag = row.view_all  # Truy cập trực tiếp thuộc tính thay vì dict(row)
+        view_all_flag = row.view_all
         game_package = row.game_package_name
 
-        # Nếu gặp record view_all = False => Bắt đầu lưu danh sách game
         if view_all_flag is False:
             games_list.append(game_package)
 
-        # Nếu gặp record view_all = True
         if view_all_flag is True:
             if games_list:
-                # Nếu trước đó đã có game cụ thể (view_all=False), thì bỏ qua view_all=True
                 continue  
             else:
-                # Nếu chưa có game nào, thì giữ nguyên view_all=True
                 latest_view_all = True
                 break  
 
     return {
+        "user": user,
         "data": {
             "view_all": latest_view_all if not games_list else False,  
             "games_list": games_list if not latest_view_all else []

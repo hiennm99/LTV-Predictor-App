@@ -9,6 +9,7 @@ const oktaAuth = new OktaAuth({
   pkce: true,
   tokenManager: {
     autoRenew: true,
+    storage: "memory",
     expireEarlySeconds: 30,
   },
 });
